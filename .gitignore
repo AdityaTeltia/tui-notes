@@ -1,0 +1,66 @@
+# Binaries
+ssh-notes-server
+ssh-notes-server-*
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Data directories
+data/
+*.json
+
+# Host keys
+host_key
+host_key.pub
+*.key
+*.pem
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Backups
+*.tar.gz
+*.zip
+backup/
+export/
+
+# Environment
+.env
+.env.local
+
+# md files
+QUICK_START_EC2.md
+SSH_CONFIG.md
+DEPLOY_EC2.md
+INSTALL.md
+NEXT_STEPS.md
+
+# scripts
+ssh-notes
+

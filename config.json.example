@@ -1,0 +1,31 @@
+{
+  "server": {
+    "port": "2222",
+    "host_key": "host_key",
+    "data_dir": "./data"
+  },
+  "security": {
+    "auth_mode": "none",
+    "require_password": false,
+    "password_file": "",
+    "authorized_keys_file": "",
+    "max_login_attempts": 5,
+    "session_timeout": 3600
+  },
+  "data": {
+    "base_dir": "./data",
+    "enable_encryption": false,
+    "max_note_size": 10485760,
+    "backup_enabled": false,
+    "backup_interval": 60
+  },
+  "logging": {
+    "level": "info",
+    "file": "./logs/ssh-notes.log",
+    "max_size": 100,
+    "max_backups": 3,
+    "max_age": 7,
+    "compress": true
+  }
+}
+
