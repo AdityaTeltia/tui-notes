@@ -2,7 +2,7 @@
 
 A fully interactive, terminal-based note-taking application accessible via SSH. Users connect with `ssh notes.example.com` and are greeted with a beautiful TUI for writing, browsing, searching, and organizing notes—all directly in their terminal.
 
-https://github.com/user-attachments/assets/42eb413f-b777-4d0c-a780-6ed3f8e2e744
+https://github.com/user-attachments/assets/28ee896d-4abe-48ea-b36b-7ab869e9aaec
 
 ## Features
 
