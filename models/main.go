@@ -181,6 +181,8 @@ func (m *MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.handleEditorKey(msg)
 		case "title_edit":
 			return m.handleTitleEditKey(msg)
+		case "preview":
+			return m.handlePreviewKey(msg)
 		case "search":
 			return m.handleSearchKey(msg)
 		case "tags":
@@ -211,6 +213,8 @@ func (m *MainModel) View() string {
 		return m.renderEditor()
 	case "title_edit":
 		return m.renderTitleEdit()
+	case "preview":
+		return m.renderPreview()
 	case "search":
 		return m.renderSearch()
 	case "tags":
@@ -548,7 +552,51 @@ func (m *MainModel) renderEditor() string {
 }
 
 func (m *MainModel) renderPreview() string {
-	return m.previewViewport.View()
+	var s strings.Builder
+	
+	// Title
+	title := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("62")).
+		Render("Preview")
+	
+	if m.currentNote != nil {
+		title += " - " + m.currentNote.Title
+	}
+	
+	s.WriteString(title + "\n")
+	separatorLen := m.width - 2
+	if separatorLen > 0 {
+		s.WriteString(strings.Repeat("─", separatorLen) + "\n\n")
+	} else {
+		s.WriteString("─\n\n")
+	}
+	
+	// Preview content in viewport
+	previewHeight := m.height - 6 // Reserve space for title, separator, and help
+	if previewHeight < 1 {
+		previewHeight = 1
+	}
+	
+	// Update viewport size if needed
+	if m.previewViewport.Height != previewHeight {
+		m.previewViewport.Height = previewHeight
+	}
+	if m.previewViewport.Width != m.width-4 {
+		m.previewViewport.Width = m.width - 4
+	}
+	
+	s.WriteString(m.previewViewport.View())
+	
+	// Help text
+	help := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("240")).
+		PaddingTop(1).
+		Render("↑/↓: Scroll | Esc/q: Back | e: Edit")
+	
+	s.WriteString("\n" + help)
+	
+	return s.String()
 }
 
 func (m *MainModel) renderSearch() string {

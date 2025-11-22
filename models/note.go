@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -264,9 +265,22 @@ func (m *MainModel) previewCurrentNote() {
 		return
 	}
 	
+	// Update content from editor
 	m.currentNote.Content = m.editorText
+	
+	// Render markdown
 	m.previewContent = renderMarkdown(m.currentNote.Content)
+	
+	// Set viewport content and ensure proper sizing
 	m.previewViewport.SetContent(m.previewContent)
+	m.previewViewport.Width = m.width - 4
+	previewHeight := m.height - 6
+	if previewHeight < 1 {
+		previewHeight = 1
+	}
+	m.previewViewport.Height = previewHeight
+	
+	// Switch to preview view
 	m.currentView = "preview"
 }
 
@@ -340,35 +354,122 @@ func (m *MainModel) showSettings() {
 	// TODO: Implement settings
 }
 
-// renderMarkdown provides a simple markdown renderer for terminal
+// renderMarkdown provides an enhanced markdown renderer for terminal
 func renderMarkdown(md string) string {
-	// Simple markdown rendering for terminal
 	lines := strings.Split(md, "\n")
 	var result strings.Builder
+	inCodeBlock := false
+	codeBlockLang := ""
 	
 	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		
+		// Handle code blocks
+		if strings.HasPrefix(trimmed, "```") {
+			if !inCodeBlock {
+				inCodeBlock = true
+				codeBlockLang = strings.TrimPrefix(trimmed, "```")
+				result.WriteString("\n" + strings.Repeat("─", 60) + "\n")
+				if codeBlockLang != "" {
+					result.WriteString("Code: " + codeBlockLang + "\n")
+					result.WriteString(strings.Repeat("─", 60) + "\n")
+				}
+			} else {
+				inCodeBlock = false
+				result.WriteString(strings.Repeat("─", 60) + "\n\n")
+			}
+			continue
+		}
+		
+		if inCodeBlock {
+			// In code block - preserve formatting
+			result.WriteString(line + "\n")
+			continue
+		}
+		
+		// Headings with figlet-style rendering
 		if strings.HasPrefix(line, "# ") {
-			// H1
-			result.WriteString("\n" + strings.TrimPrefix(line, "# ") + "\n")
-			result.WriteString(strings.Repeat("=", len(strings.TrimPrefix(line, "# "))) + "\n")
+			// H1 - Use figlet if available, otherwise bold with underline
+			text := strings.TrimPrefix(line, "# ")
+			figletText := renderFiglet(text, "standard")
+			if figletText != "" {
+				result.WriteString("\n" + figletText + "\n")
+			} else {
+				// Fallback: bold with underline
+				result.WriteString("\n" + strings.ToUpper(text) + "\n")
+				result.WriteString(strings.Repeat("═", len(text)) + "\n")
+			}
 		} else if strings.HasPrefix(line, "## ") {
-			// H2
-			result.WriteString("\n" + strings.TrimPrefix(line, "## ") + "\n")
-			result.WriteString(strings.Repeat("-", len(strings.TrimPrefix(line, "## "))) + "\n")
+			// H2 - Use smaller figlet font
+			text := strings.TrimPrefix(line, "## ")
+			figletText := renderFiglet(text, "small")
+			if figletText != "" {
+				result.WriteString("\n" + figletText + "\n")
+			} else {
+				// Fallback
+				result.WriteString("\n" + text + "\n")
+				result.WriteString(strings.Repeat("─", len(text)) + "\n")
+			}
 		} else if strings.HasPrefix(line, "### ") {
-			// H3
-			result.WriteString("\n" + strings.TrimPrefix(line, "### ") + "\n")
+			// H3 - Bold text
+			text := strings.TrimPrefix(line, "### ")
+			result.WriteString("\n" + strings.ToUpper(text) + "\n")
+		} else if strings.HasPrefix(line, "#### ") {
+			// H4
+			text := strings.TrimPrefix(line, "#### ")
+			result.WriteString("\n" + text + "\n")
 		} else if strings.HasPrefix(line, "- ") || strings.HasPrefix(line, "* ") {
 			// List item
-			result.WriteString("  • " + strings.TrimPrefix(strings.TrimPrefix(line, "- "), "* ") + "\n")
-		} else if strings.HasPrefix(line, "```") {
-			// Code block
-			result.WriteString("\n" + line + "\n")
+			item := strings.TrimPrefix(strings.TrimPrefix(line, "- "), "* ")
+			// Check for checkbox
+			if strings.HasPrefix(item, "[ ]") {
+				result.WriteString("  ☐ " + strings.TrimPrefix(item, "[ ]") + "\n")
+			} else if strings.HasPrefix(item, "[x]") || strings.HasPrefix(item, "[X]") {
+				result.WriteString("  ☑ " + strings.TrimPrefix(strings.TrimPrefix(item, "[x]"), "[X]") + "\n")
+			} else {
+				result.WriteString("  • " + item + "\n")
+			}
+		} else if strings.HasPrefix(line, "> ") {
+			// Blockquote
+			quote := strings.TrimPrefix(line, "> ")
+			result.WriteString("  │ " + quote + "\n")
+		} else if strings.HasPrefix(line, "**") && strings.HasSuffix(line, "**") {
+			// Bold text
+			text := strings.Trim(strings.TrimPrefix(strings.TrimSuffix(line, "**"), "**"), " ")
+			result.WriteString(strings.ToUpper(text) + "\n")
+		} else if strings.HasPrefix(line, "*") && strings.HasSuffix(line, "*") && !strings.HasPrefix(line, "**") {
+			// Italic text
+			text := strings.Trim(strings.TrimPrefix(strings.TrimSuffix(line, "*"), "*"), " ")
+			result.WriteString(text + "\n")
+		} else if strings.HasPrefix(line, "`") && strings.HasSuffix(line, "`") {
+			// Inline code
+			code := strings.Trim(strings.TrimPrefix(strings.TrimSuffix(line, "`"), "`"), " ")
+			result.WriteString("[" + code + "]\n")
+		} else if trimmed == "" {
+			// Empty line
+			result.WriteString("\n")
+		} else if strings.HasPrefix(trimmed, "---") || strings.HasPrefix(trimmed, "***") {
+			// Horizontal rule
+			result.WriteString(strings.Repeat("─", 60) + "\n")
 		} else {
+			// Regular text
 			result.WriteString(line + "\n")
 		}
 	}
 	
 	return result.String()
+}
+
+// renderFiglet attempts to render text using figlet (if available)
+// Returns empty string if figlet is not available
+func renderFiglet(text, font string) string {
+	// Try to execute figlet command
+	cmd := exec.Command("figlet", "-f", font, "-w", "60", text)
+	output, err := cmd.Output()
+	if err != nil {
+		// Figlet not available, return empty to use fallback
+		return ""
+	}
+	return string(output)
 }
 
