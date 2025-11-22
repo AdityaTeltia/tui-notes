@@ -2,6 +2,8 @@
 
 A fully interactive, terminal-based note-taking application accessible via SSH. Users connect with `ssh notes.example.com` and are greeted with a beautiful TUI for writing, browsing, searching, and organizing notes—all directly in their terminal.
 
+https://github.com/user-attachments/assets/42eb413f-b777-4d0c-a780-6ed3f8e2e744
+
 ## Features
 
 ### Core Features
@@ -17,22 +19,6 @@ A fully interactive, terminal-based note-taking application accessible via SSH. 
 - 💻 **CLI Commands** - Power user commands for export/import
 - 🐧 **Cross-Platform** - Works on Linux, macOS, and WSL
 
-### New Features (v1.0.0)
-- 🔄 **Sorting & Filtering** - Sort by date, title, or filter by tags
-- ⚡ **Quick Actions** - Jump to notes, recent notes, duplicate, pin notes
-- 🔗 **Note Linking** - Internal links with `[[Note Title]]` syntax and backlinks
-- ✅ **To-Do Lists** - Markdown checkboxes with completion tracking
-- 📋 **Templates** - Pre-built templates for meetings, journals, code, todos
-- 📜 **Version History** - Automatic snapshots with restore capability
-- 🎨 **Themes** - 5 built-in themes (Default, Dark, Light, Monokai, Nord)
-
-### Production Ready
-- 📝 **Structured Logging** - Configurable log levels with file rotation
-- ⚙️ **Configuration Files** - JSON-based configuration with CLI overrides
-- 🔒 **Input Validation** - Comprehensive validation and sanitization
-- 💾 **Auto-Backup** - Automatic backups before saves
-- 🛡️ **Error Recovery** - Panic recovery and graceful shutdown
-- 🏗️ **Build System** - Makefile with cross-platform builds
 
 ## Quick Start
 
@@ -231,30 +217,6 @@ To enable encryption for a note:
 2. Notes marked as encrypted will be encrypted using AES-256-GCM
 3. Encryption key should be derived from user password
 
-## Deployment
-
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
-
-## Development
-
-### Project Structure
-
-```
-ssh-notes/
-├── main.go              # SSH server and entry point
-├── app.go               # Application wrapper
-├── auth.go              # Authentication logic
-├── cli.go               # CLI commands
-├── models/
-│   ├── main.go          # Main TUI model
-│   ├── note.go          # Note management
-│   ├── export.go        # Export/import functionality
-│   └── encryption.go    # Encryption utilities
-├── go.mod
-├── go.sum
-├── README.md
-└── DEPLOYMENT.md
-```
 
 ### Building
 
